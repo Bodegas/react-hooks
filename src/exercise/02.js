@@ -4,15 +4,13 @@
 import React, {useState, useEffect} from "react";
 
 function Greeting({initialName = ""}) {
-  // 🐨 initialize the state to the value from localStorage
-  const nameLocalStorage = window.localStorage.getItem("name") || initialName;
-  console.log(nameLocalStorage);
-  const [name, setName] = useState(nameLocalStorage);
+  const getNameFromLocalStorage = () =>
+    window.localStorage.getItem("name") || initialName;
+  
+  const [name, setName] = useState(getNameFromLocalStorage);
 
-  // 🐨 Here's where you'll use `React.useEffect`.
-  // The callback should set the `name` in localStorage.
   useEffect(() => {
-      window.localStorage.setItem("name", name);
+    window.localStorage.setItem("name", name);
   }, [name]);
 
   function handleChange(event) {
@@ -30,7 +28,7 @@ function Greeting({initialName = ""}) {
 }
 
 function App() {
-  return <Greeting />;
+  return <Greeting  initialName="David" />;
 }
 
 export default App;
