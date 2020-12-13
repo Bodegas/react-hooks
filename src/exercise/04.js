@@ -22,10 +22,7 @@ function Board({
     newSquares[squareIndex] = nextValue;
     setSquares(newSquares);
     setCurrentStep(currentStep => currentStep + 1);
-    if (currentStep !== history.length -1) {
-      setHistory(history => [...history.slice(0, currentStep), newSquares]);
-    }
-    setHistory(history => [...history, newSquares]);
+    setHistory(history => [...history.slice(0, currentStep + 1), newSquares]);
   }
 
   function renderSquare(i) {
