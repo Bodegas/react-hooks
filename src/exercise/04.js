@@ -1,35 +1,36 @@
 // useState: tic tac toe
 // http://localhost:3000/isolated/exercise/04.js
 
-import React from "react";
+import React, {useEffect} from "react";
 import {useLocalStorageState} from "../utils";
 
-function Board() {
-  const [squares, setSquares] = useLocalStorageState(
-    "squares",
-    Array(9).fill(null),
-  );
-
-  const nextValue = calculateNextValue(squares);
-  const winner = calculateWinner(squares);
-  const status = calculateStatus(winner, squares, nextValue);
-
-  function selectSquare(square) {
-    if (winner || squares[square]) {
+function Board({
+  squares,
+  setSquares,
+  currentStep,
+  setCurrentStep,
+  setHistory,
+  history,
+  winner,
+  nextValue,
+}) {
+  function handleClickSquare(squareIndex) {
+    if (winner || squares[squareIndex]) {
       return;
     }
     const newSquares = [...squares];
-    newSquares[square] = nextValue;
+    newSquares[squareIndex] = nextValue;
     setSquares(newSquares);
-  }
-
-  function restart() {
-    setSquares(Array(9).fill(null));
+    setCurrentStep(currentStep => currentStep + 1);
+    if (currentStep !== history.length) {
+      setHistory(history => [...history.slice(0, currentStep), newSquares]);
+    }
+    setHistory(history => [...history, newSquares]);
   }
 
   function renderSquare(i) {
     return (
-      <button className="square" onClick={() => selectSquare(i)}>
+      <button className="square" onClick={() => handleClickSquare(i)}>
         {squares[i]}
       </button>
     );
@@ -37,7 +38,6 @@ function Board() {
 
   return (
     <div>
-      <div className="status">{status}</div>
       <div className="board-row">
         {renderSquare(0)}
         {renderSquare(1)}
@@ -53,18 +53,82 @@ function Board() {
         {renderSquare(7)}
         {renderSquare(8)}
       </div>
-      <button className="restart" onClick={restart}>
-        restart
-      </button>
     </div>
   );
 }
 
+function Moves({history, currentStep, setCurrentStep}) {
+  const handleClickStep = step => {
+    setCurrentStep(step);
+  };
+
+  return (
+    <ol>
+      {history.map((step, index) => (
+        <li key={index}>
+          {currentStep === index ? (
+            <button disabled onClick={() => handleClickStep(index)}>{`Go to ${
+              index === 0 ? "game start (current)" : `move # ${index} (current)`
+            }`}</button>
+          ) : (
+            <button onClick={() => handleClickStep(index)}>{`Go to ${
+              index === 0 ? "game start" : `move # ${index}`
+            }`}</button>
+          )}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 function Game() {
+  const [squares, setSquares] = useLocalStorageState(
+    "squares",
+    Array(9).fill(null),
+  );
+  const [history, setHistory] = useLocalStorageState("history", [
+    Array(9).fill(null),
+  ]);
+  const [currentStep, setCurrentStep] = useLocalStorageState("currentStep", 0);
+
+  const nextValue = calculateNextValue(squares);
+  const winner = calculateWinner(squares);
+  const status = calculateStatus(winner, squares, nextValue);
+
+  useEffect(() => {
+    setSquares(history[currentStep]);
+  }, [currentStep]);
+
+  function restart() {
+    setSquares(Array(9).fill(null));
+    setHistory([[null]]);
+    setCurrentStep(0);
+  }
+
   return (
     <div className="game">
       <div className="game-board">
-        <Board />
+        <Board
+          squares={squares}
+          currentStep={currentStep}
+          setSquares={setSquares}
+          nextValue={nextValue}
+          winner={winner}
+          history={history}
+          setHistory={setHistory}
+          setCurrentStep={setCurrentStep}
+        />
+        <button className="restart" onClick={restart}>
+          restart
+        </button>
+      </div>
+      <div className="game-info">
+        <div>{status}</div>
+        <Moves
+          history={history}
+          currentStep={currentStep}
+          setCurrentStep={setCurrentStep}
+        />
       </div>
     </div>
   );
