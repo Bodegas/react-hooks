@@ -22,7 +22,7 @@ function Board({
     newSquares[squareIndex] = nextValue;
     setSquares(newSquares);
     setCurrentStep(currentStep => currentStep + 1);
-    if (currentStep !== history.length) {
+    if (currentStep !== history.length -1) {
       setHistory(history => [...history.slice(0, currentStep), newSquares]);
     }
     setHistory(history => [...history, newSquares]);
@@ -58,20 +58,16 @@ function Board({
 }
 
 function Moves({history, currentStep, setCurrentStep}) {
-  const handleClickStep = step => {
-    setCurrentStep(step);
-  };
-
   return (
     <ol>
       {history.map((step, index) => (
         <li key={index}>
           {currentStep === index ? (
-            <button disabled onClick={() => handleClickStep(index)}>{`Go to ${
+            <button disabled onClick={() => setCurrentStep(index)}>{`Go to ${
               index === 0 ? "game start (current)" : `move # ${index} (current)`
             }`}</button>
           ) : (
-            <button onClick={() => handleClickStep(index)}>{`Go to ${
+            <button onClick={() => setCurrentStep(index)}>{`Go to ${
               index === 0 ? "game start" : `move # ${index}`
             }`}</button>
           )}
@@ -101,7 +97,7 @@ function Game() {
 
   function restart() {
     setSquares(Array(9).fill(null));
-    setHistory([[null]]);
+    setHistory([Array(9).fill(null)]);
     setCurrentStep(0);
   }
 
