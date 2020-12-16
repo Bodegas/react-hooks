@@ -11,19 +11,35 @@ import {
 
 function PokemonInfo({pokemonName}) {
   const [pokemon, setPokemon] = useState(null);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
+    setPokemon(null);
+    setError(null);
     const fetchPokemonData = async pokemonName => {
-      const pokemonData = await fetchPokemon(pokemonName);
-      setPokemon(pokemonData);
+      try {
+        const pokemonData = await fetchPokemon(pokemonName);
+        setPokemon(pokemonData);
+      } catch (error) {
+        setError(error);
+      }
     };
     if (pokemonName) {
       fetchPokemonData(pokemonName);
     }
-    return () => setPokemon(null);
   }, [pokemonName]);
 
   if (!pokemonName) {
     return null;
+  }
+
+  if (error) {
+    return (
+      <div role="alert">
+        There was an error:{" "}
+        <pre style={{whiteSpace: "normal"}}>{error.message}</pre>
+      </div>
+    );
   }
 
   if (!pokemon) {
