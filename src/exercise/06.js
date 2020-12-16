@@ -12,16 +12,19 @@ import {
 function PokemonInfo({pokemonName}) {
   const [pokemon, setPokemon] = useState(null);
   const [error, setError] = useState(null);
+  const [status, setStatus] = useState("idle");
 
   useEffect(() => {
-    setPokemon(null);
-    setError(null);
+    setStatus("idle");
     const fetchPokemonData = async pokemonName => {
       try {
+        setStatus("pending");
         const pokemonData = await fetchPokemon(pokemonName);
         setPokemon(pokemonData);
+        setStatus("resolved");
       } catch (error) {
         setError(error);
+        setStatus("rejected");
       }
     };
     if (pokemonName) {
@@ -29,11 +32,13 @@ function PokemonInfo({pokemonName}) {
     }
   }, [pokemonName]);
 
-  if (!pokemonName) {
-    return null;
+  if (status === "idle") {
+    return "Submit a pokemon";
   }
-
-  if (error) {
+  if (status === "pending") {
+    return <PokemonInfoFallback name={pokemonName} />;
+  }
+  if (status === "rejected") {
     return (
       <div role="alert">
         There was an error:{" "}
@@ -41,12 +46,9 @@ function PokemonInfo({pokemonName}) {
       </div>
     );
   }
-
-  if (!pokemon) {
-    return <PokemonInfoFallback name={pokemonName} />;
+  if (status === "resolved") {
+    return <PokemonDataView pokemon={pokemon} />;
   }
-
-  return <PokemonDataView pokemon={pokemon} />;
 }
 
 function App() {
