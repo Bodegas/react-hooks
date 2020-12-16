@@ -10,21 +10,18 @@ import {
 } from "../pokemon";
 
 function PokemonInfo({pokemonName}) {
-  const [pokemon, setPokemon] = useState(null);
-  const [error, setError] = useState(null);
-  const [status, setStatus] = useState("idle");
+  const [state, setState] = useState({status: "idle", pokemon: null, error: null});
+  const {status, pokemon, error} = state;
 
   useEffect(() => {
-    setStatus("idle");
+    setState({...state, status: "idle"});
     const fetchPokemonData = async pokemonName => {
       try {
-        setStatus("pending");
+        setState({...state, status: "pending"});
         const pokemonData = await fetchPokemon(pokemonName);
-        setPokemon(pokemonData);
-        setStatus("resolved");
+        setState({...state, pokemon: pokemonData, status: "resolved"});
       } catch (error) {
-        setError(error);
-        setStatus("rejected");
+        setState({...state, error, status: "rejected"});
       }
     };
     if (pokemonName) {
