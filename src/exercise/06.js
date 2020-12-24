@@ -10,10 +10,11 @@ import {
   PokemonDataView,
 } from "../pokemon";
 
-const PokemonErrorFallback = ({error}) => (
+const PokemonErrorFallback = ({error, resetErrorBoundary}) => (
   <div role="alert">
     There was an error:{" "}
     <pre style={{whiteSpace: "normal"}}>{error.message}</pre>
+    <button onClick={resetErrorBoundary}>Try it again</button>
   </div>
 );
 
@@ -68,8 +69,8 @@ function App() {
       <hr />
       <div className="pokemon-info">
         <ErrorBoundary
-          key={pokemonName}
           FallbackComponent={PokemonErrorFallback}
+          onReset={() => setPokemonName("")}
         >
           <PokemonInfo pokemonName={pokemonName} />
         </ErrorBoundary>
