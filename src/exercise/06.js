@@ -2,6 +2,7 @@
 // http://localhost:3000/isolated/exercise/06.js
 
 import React, {useState, useEffect} from "react";
+import {ErrorBoundary} from "react-error-boundary";
 import {
   PokemonForm,
   fetchPokemon,
@@ -9,24 +10,6 @@ import {
   PokemonDataView,
 } from "../pokemon";
 
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {error: null};
-  }
-  static getDerivedStateFromError(error) {
-    return {error};
-  }
-
-  render() {
-    const {error} = this.state;
-    const {PokemonErrorFallback} = this.props;
-    if (error) {
-      return <PokemonErrorFallback error={error} />;
-    }
-    return this.props.children;
-  }
-}
 const PokemonErrorFallback = ({error}) => (
   <div role="alert">
     There was an error:{" "}
@@ -84,7 +67,10 @@ function App() {
       <PokemonForm pokemonName={pokemonName} onSubmit={handleSubmit} />
       <hr />
       <div className="pokemon-info">
-        <ErrorBoundary key={pokemonName} PokemonErrorFallback={PokemonErrorFallback}>
+        <ErrorBoundary
+          key={pokemonName}
+          FallbackComponent={PokemonErrorFallback}
+        >
           <PokemonInfo pokemonName={pokemonName} />
         </ErrorBoundary>
       </div>
